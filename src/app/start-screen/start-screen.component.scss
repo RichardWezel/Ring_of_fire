@@ -1,13 +1,43 @@
+@mixin dja() {
+	display: flex;
+	justify-content: center;
+    align-items: center;
+}
+
 .start-screen {
     width: 100vw;
     max-width: 100%;
     height: 100vh;
     background-color: #404040;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    >img {
+    @include dja();
+    position: relative;
+   
+}
+
+.start-box {
+    @include dja();
+    position: relative;
+    img:first-child {
         height: 80vh;
-        
+        width: 100%;
+        position: relative;
+    }
+    button {
+        background-image: url('./../../../public/img/startlabel.png');
+        position: absolute;
+        @include dja();
+        bottom: 100px;
+        width: 30%;
+        border: none;
+        background-color: unset;
+        height: 50px;
+        background-size: contain;
+        background-repeat: round;
+        &:hover {
+            filter: brightness(1.1);
+            cursor: pointer;
+        }
+        font-size: 20px;
+
     }
 }
