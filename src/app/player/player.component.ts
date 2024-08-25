@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 
+
 @Component({
   selector: 'app-player',
   standalone: true,
@@ -11,5 +12,6 @@ import { Component, Input } from '@angular/core';
 export class PlayerComponent {
 
   @Input() name: any;
+  @Input() playerActive: boolean = false;
 
 }
