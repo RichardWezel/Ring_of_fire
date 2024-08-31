@@ -42,26 +42,29 @@ export class GameComponent {
   // items$: Observable<any[]>;
   pickCardAnimation:boolean =  false;
   currentCard: string = '';
-  game!: Game;
+  game: Game = new Game(); // Initialisiere ein leeres Spiel
   currentDocId: string = '';
   readonly dialog = inject(MatDialog);
 
   constructor(private route: ActivatedRoute) {
-    this.newGame();
     this.route.params.subscribe((params) => {
-      console.log('Route-id: ',params['id']);
       this.currentDocId = params['id'];
-      console.log('current Doc Id: ', this.currentDocId );
-      collectionData(this.getRef(), params['id'])
-    .subscribe(
-      (data:any) => { 
-        console.log('Collection-Data: ', data); 
-        this.game.currentPlayer = data.currentPlayer;
-        this.game.playedCards = data.playedCards;
-        this.game.players = data.players;
-        this.game.stack = data.stack;
-      });
-    })
+      collectionData(this.getRef(), { idField: 'id' })
+      .subscribe(
+        (data: any) => { 
+          if (data.length > 0) {
+            const gameData = data[0];
+            this.game.currentPlayer = gameData.currentPlayer || 0;
+            this.game.playedCards = gameData.playedCards || [];
+            this.game.players = gameData.players || [];
+            this.game.stack = gameData.stack || [];
+          }
+        },
+        (error: any) => {
+          console.error('Fehler beim Abrufen der Spieldaten:', error);
+        }
+      );
+    });
   }
 
   getRef() {
@@ -107,9 +110,4 @@ export class GameComponent {
       }
     });
   }
-
-  
-
-
-
 }
