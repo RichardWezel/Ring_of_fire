@@ -12,22 +12,11 @@ import { BehaviorSubject, interval, throttle } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit{
-  title = 'ringoffire';
+export class AppComponent{
 
-  timer = new BehaviorSubject<number>(0);
 
-  ngOnInit() {
-    this.timer
-    .pipe(throttle(val => interval(2000)))
-    .subscribe((timepassed) => {
-      console.log(timepassed);
 
-    });
 
-   setInterval(() => {
-    let newValue = this.timer.value + 1000;
-    this.timer.next(newValue)
-   }, 100)
+  
   }
-}
+

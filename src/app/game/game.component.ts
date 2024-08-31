@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Game } from '../../models/game';
 import { PlayerComponent } from '../player/player.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { inject} from '@angular/core';
 import {
   MatDialog,
   MatDialogActions,
@@ -14,6 +13,10 @@ import {
 } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { GameInfoComponent } from '../game-info/game-info.component';
+import { Firestore, collection, collectionData, addDoc, setDoc, doc } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+
 
 @Component({
   selector: 'app-game',
@@ -28,25 +31,55 @@ import { GameInfoComponent } from '../game-info/game-info.component';
     MatDialogActions,
     MatDialogClose, 
     DialogAddPlayerComponent, 
-    GameInfoComponent],
+    GameInfoComponent,
+  ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss'
 })
-export class GameComponent implements OnInit{
+export class GameComponent {
+  firestore: Firestore = inject(Firestore);
+  
+  // items$: Observable<any[]>;
   pickCardAnimation:boolean =  false;
   currentCard: string = '';
   game!: Game;
+  currentDocId: string = '';
   readonly dialog = inject(MatDialog);
 
-  constructor() {
+  constructor(private route: ActivatedRoute) {
+    this.newGame();
+    this.route.params.subscribe((params) => {
+      console.log('Route-id: ',params['id']);
+      this.currentDocId = params['id'];
+      console.log('current Doc Id: ', this.currentDocId );
+      collectionData(this.getRef(), params['id'])
+    .subscribe(
+      (data:any) => { 
+        console.log('Collection-Data: ', data); 
+        this.game.currentPlayer = data.currentPlayer;
+        this.game.playedCards = data.playedCards;
+        this.game.players = data.players;
+        this.game.stack = data.stack;
+      });
+    })
   }
 
-  ngOnInit(): void {
-    this.newGame();
+  getRef() {
+    return collection(this.firestore, 'games');
   }
 
   newGame() {
     this.game = new Game();
+    // this.create(this.game.toJson());
+    // console.log(doc(this.getRef(), 'game'));
+  }
+
+  async addGame() {
+    setDoc(doc(this.getRef()), this.game.toJson());
+  }
+
+  create(data: any) {
+    return addDoc(this.getRef(), data)
   }
 
   takeCard() {
@@ -68,14 +101,15 @@ export class GameComponent implements OnInit{
 
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent);
-
     dialogRef.afterClosed().subscribe((name: string) => {
       if(name && name.length > 0) {
         this.game.players.push(name)
       }
-     
     });
   }
+
+  
+
 
 
 }
